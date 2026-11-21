@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Scan me</title>
+<style>
+:root{
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+  color-scheme:light;
+  --bg:#eef3f8; --fg:#0b2233; --muted:#4d6377; --card:#ffffff; --line:#cfdbe7;
+  --accent:#0f6fd1; --danger:#c0392b; --ok:#1f8a4c; --term-bg:#07131d; --term-fg:#38e07b;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    color-scheme:dark;
+    --bg:#06101a; --fg:#e6f1fa; --muted:#93adc4; --card:#0d1d2b; --line:#1d3448;
+    --accent:#4db0ff; --danger:#ff6b5e; --ok:#46d283; --term-bg:#020a10; --term-fg:#38e07b;
+  }
+}
+:root[data-theme="dark"]{
+  color-scheme:dark;
+  --bg:#06101a; --fg:#e6f1fa; --muted:#93adc4; --card:#0d1d2b; --line:#1d3448;
+  --accent:#4db0ff; --danger:#ff6b5e; --ok:#46d283; --term-bg:#020a10; --term-fg:#38e07b;
+}
+html{scroll-padding-top:env(safe-area-inset-top,0px);}
+*,*::before,*::after{box-sizing:inherit}
+body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.55 system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;min-height:100vh}
+main{max-width:640px;margin:0 auto;padding:20px 16px 40px}
+
+/* Terminal d’intro */
+.term{background:var(--term-bg);color:var(--term-fg);border-radius:14px;padding:16px;
+  font:14px/1.6 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;min-height:220px;
+  border:1px solid var(--line);overflow:hidden}
+.term p{margin:0;white-space:pre-wrap;word-break:break-word}
+.term .bar{height:8px;background:#12303f;border-radius:4px;margin-top:10px;overflow:hidden}
+.term .bar i{display:block;height:100%;width:0;background:var(--term-fg);transition:width .25s linear}
+.cursor::after{content:"▍";animation:blink 1s steps(1) infinite}
+@keyframes blink{50%{opacity:0}}
+
+/* Contenu révélé */
+#after{display:none}
+#after.show{display:block;animation:fade .5s ease}
+@keyframes fade{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+h1{font-size:1.6rem;line-height:1.25;margin:8px 0 6px}
+.lead{color:var(--muted);margin:0 0 18px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px 16px;margin:12px 0}
+.card h2{font-size:1.05rem;margin:0 0 4px;color:var(--accent)}
+.card p{margin:0;color:var(--muted)}
+.foot{font-size:.85rem;color:var(--muted);text-align:center;margin-top:22px}
+button{font:inherit;cursor:pointer}
+.btn{background:var(--accent);color:#fff;border:0;border-radius:12px;padding:12px 18px;font-weight:700;width:100%}
+.btn.ghost{background:transparent;color:var(--accent);border:1px solid var(--accent);margin-top:14px}
+
+/* Pop-up */
+.overlay{position:fixed;inset:0;background:rgba(2,8,14,.72);display:none;align-items:center;justify-content:center;
+  padding:calc(16px + env(safe-area-inset-top,0px)) 16px calc(16px + env(safe-area-inset-bottom,0px));z-index:10}
+.overlay.show{display:flex}
+.modal{background:var(--card);color:var(--fg);border:2px solid var(--danger);border-radius:18px;max-width:420px;width:100%;
+  padding:26px 22px;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,.45);animation:pop .35s cubic-bezier(.2,1.4,.4,1)}
+@keyframes pop{from{transform:scale(.8);opacity:0}to{transform:none;opacity:1}}
+.modal .icon{font-size:2.6rem;line-height:1}
+.modal h2{margin:8px 0 10px;font-size:1.25rem;color:var(--danger)}
+.modal p{margin:0 0 10px;font-size:1.1rem}
+.modal .en{font-weight:800;font-size:1.25rem;margin:14px 0 0;color:var(--danger)}
+.modal small{color:var(--muted);display:block;margin-bottom:16px}
+@media (prefers-reduced-motion: reduce){*{animation:none!important;transition:none!important}}
+.redbtn{display:inline-block;margin-top:20px;background:var(--danger);color:#fff;text-decoration:none;font-weight:700;font-size:.95rem;border-radius:6px;padding:10px 16px;box-shadow:0 4px 0 rgba(0,0,0,.25)}
+.redbtn:active{transform:translateY(2px);box-shadow:0 2px 0 rgba(0,0,0,.25)}
+</style>
+</head>
+<body>
+<main>
+  <section id="intro" aria-live="polite">
+    <div class="term" id="term"></div>
+  </section>
+</main>
+
+<div class="overlay" id="overlay" role="dialog" aria-modal="true" aria-labelledby="mt">
+  <div class="modal">
+    <div class="icon">🚨</div>
+    <p id="mt">After all that cybersecurity awareness…</p>
+    <p class="en">You really thought scanning a random QR code was a good idea? 💀</p>
+    <a class="redbtn" id="backlink" href="#">↩ Retourner à l’exposé</a>
+  </div>
+</div>
+
+<script>
+(function(){
+  var term=document.getElementById('term'),
+      overlay=document.getElementById('overlay'),
+      backlink=document.getElementById('backlink');
+  // >>> Collez ici le lien du fichier de l’exposé (PDF, Drive, Overleaf…)
+  var EXPOSE_URL='';
+  if(EXPOSE_URL){backlink.href=EXPOSE_URL;}
+  else{backlink.addEventListener('click',function(e){e.preventDefault();history.length>1?history.back():alert('Lien de l’exposé à ajouter.');});}
+  var lines=[
+    '> Lecture du QR code…',
+    '> Origine du code : INCONNUE',
+    '> Ouverture du lien sans vérification… ✔',
+    '> Analyse de votre prudence…',
+    '> Résultat : vous avez scanné sans réfléchir.'
+  ];
+  var timers=[];
+  function later(fn,ms){timers.push(setTimeout(fn,ms));}
+  function clearAll(){timers.forEach(clearTimeout);timers=[];}
+
+  function run(){
+    clearAll();
+    term.innerHTML='';
+    overlay.classList.remove('show');
+    var t=0;
+    lines.forEach(function(txt){
+      t+=650;
+      later(function(){
+        var old=term.querySelector('.cursor'); if(old) old.classList.remove('cursor');
+        var p=document.createElement('p'); p.textContent=txt; p.className='cursor'; term.appendChild(p);
+      },t);
+    });
+    t+=500;
+    later(function(){
+      var old=term.querySelector('.cursor'); if(old) old.classList.remove('cursor');
+      var p=document.createElement('p'); p.textContent='> Chargement… 0 %'; term.appendChild(p);
+      var bar=document.createElement('div'); bar.className='bar'; bar.innerHTML='<i></i>'; term.appendChild(bar);
+      var i=bar.firstChild, pct=0;
+      (function step(){
+        pct=Math.min(100,pct+Math.round(8+Math.random()*14));
+        i.style.width=pct+'%'; p.textContent='> Chargement… '+pct+' %';
+        if(pct<100){later(step,180);} else {later(show,450);}
+      })();
+    },t);
+  }
+  function show(){
+    overlay.classList.add('show');
+    if(navigator.vibrate){try{navigator.vibrate([120,60,120]);}catch(e){}}
+  }
+  run();
+})();
+</script>
+</body>
+</html>
