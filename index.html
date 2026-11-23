@@ -40,20 +40,6 @@ main{max-width:640px;margin:0 auto;padding:20px 16px 40px}
 .cursor::after{content:"▍";animation:blink 1s steps(1) infinite}
 @keyframes blink{50%{opacity:0}}
 
-/* Contenu révélé */
-#after{display:none}
-#after.show{display:block;animation:fade .5s ease}
-@keyframes fade{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
-h1{font-size:1.6rem;line-height:1.25;margin:8px 0 6px}
-.lead{color:var(--muted);margin:0 0 18px}
-.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px 16px;margin:12px 0}
-.card h2{font-size:1.05rem;margin:0 0 4px;color:var(--accent)}
-.card p{margin:0;color:var(--muted)}
-.foot{font-size:.85rem;color:var(--muted);text-align:center;margin-top:22px}
-button{font:inherit;cursor:pointer}
-.btn{background:var(--accent);color:#fff;border:0;border-radius:12px;padding:12px 18px;font-weight:700;width:100%}
-.btn.ghost{background:transparent;color:var(--accent);border:1px solid var(--accent);margin-top:14px}
-
 /* Pop-up */
 .overlay{position:fixed;inset:0;background:rgba(2,8,14,.72);display:none;align-items:center;justify-content:center;
   padding:calc(16px + env(safe-area-inset-top,0px)) 16px calc(16px + env(safe-area-inset-bottom,0px));z-index:10}
@@ -67,8 +53,6 @@ button{font:inherit;cursor:pointer}
 .modal .en{font-weight:800;font-size:1.25rem;margin:14px 0 0;color:var(--danger)}
 .modal small{color:var(--muted);display:block;margin-bottom:16px}
 @media (prefers-reduced-motion: reduce){*{animation:none!important;transition:none!important}}
-.redbtn{display:inline-block;margin-top:20px;background:var(--danger);color:#fff;text-decoration:none;font-weight:700;font-size:.95rem;border-radius:6px;padding:10px 16px;box-shadow:0 4px 0 rgba(0,0,0,.25)}
-.redbtn:active{transform:translateY(2px);box-shadow:0 2px 0 rgba(0,0,0,.25)}
 </style>
 </head>
 <body>
@@ -83,19 +67,13 @@ button{font:inherit;cursor:pointer}
     <div class="icon">🚨</div>
     <p id="mt">After all that cybersecurity awareness…</p>
     <p class="en">You really thought scanning a random QR code was a good idea? 💀</p>
-    <a class="redbtn" id="backlink" href="#">↩ Retourner à l’exposé</a>
   </div>
 </div>
 
 <script>
 (function(){
   var term=document.getElementById('term'),
-      overlay=document.getElementById('overlay'),
-      backlink=document.getElementById('backlink');
-  // >>> Collez ici le lien du fichier de l’exposé (PDF, Drive, Overleaf…)
-  var EXPOSE_URL='';
-  if(EXPOSE_URL){backlink.href=EXPOSE_URL;}
-  else{backlink.addEventListener('click',function(e){e.preventDefault();history.length>1?history.back():alert('Lien de l’exposé à ajouter.');});}
+      overlay=document.getElementById('overlay');
   var lines=[
     '> Lecture du QR code…',
     '> Origine du code : INCONNUE',
